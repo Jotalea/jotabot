@@ -2,7 +2,7 @@ import os
 # You can change the color of the embeds
 embed_color = 0x9bff30
 # Update the bot's version
-bot_version = "4.9.4.2"
+bot_version = "4.9.5"
 # User ID of the bot owner
 admin_id = os.environ['OWNER-ID']
 # Conversation logging
