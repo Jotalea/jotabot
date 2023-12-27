@@ -632,7 +632,7 @@ async def on_message(message):
             try:
                 asyncio.create_task(jotalea.async_webhook(settings.log_webhook, f"<@{message.author.id}> at <#{message.channel.id}> ({server_name}) said: {message.content}"))
             except Exception as e:
-                jotalea.prettyprint("red", "[ERROR] Error while sending data to webhook (async)")
+                jotalea.prettyprint("red", "[ERROR] Error while logging (async)")
         else:
             try:
                 import os
