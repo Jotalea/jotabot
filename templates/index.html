@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Jota-Bot | Website</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link
+            rel="icon"
+            href="http://jotalea.com.ar/assets/jotalea64.png"
+        />
+        <meta name="description" content="Jotalea's Discord Bot" />
+        <meta name="robots" content="index,follow" />
+        <meta property="og:title" content="Jota-Bot" />
+        <meta property="og:description" content="Jotalea's Discord Bot" />
+        <meta
+            property="og:image"
+            content="http://jotalea.com.ar/assets/jotalea256.png"
+        />
+        <style>body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2f33;
+            overflow-x: hidden;
+            color: #ecf0f1; /* Light text color */
+            margin: 20px;
+            z-index: 996; /* Updated z-index */
+        }
+
+        .container {
+            background-color: #23272a; /* Dark background color */
+            padding: 20px;
+            width: 85%;
+            margin: 0 auto;
+            margin-top: 50px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            z-index: 997; /* Updated z-index */
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #cccccc; /* Light heading color */
+            z-index: 998; /* Updated z-index */
+        }
+
+        label,
+        input {
+            display: block;
+            margin-bottom: 10px;
+            z-index: 999; /* Updated z-index */
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 93%;
+            padding: 8px;
+            background-color: #333333; /* Dark input background */
+            color: #dddddd; /* Light input text color */
+            border: 1px solid #666666; /* Border color */
+            z-index: 999; /* Updated z-index */
+        }
+
+        button.positive {
+            width: 100%;
+            padding: 10px;
+            background-color: #7289da;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            z-index: 999; /* Updated z-index */
+        }
+
+        button.negative {
+            width: 100%;
+            padding: 10px;
+            background-color: #99aab5;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            z-index: 999; /* Updated z-index */
+        }
+
+        p,
+        ul {
+            margin-bottom: 15px;
+            color: #999999; /* Light text color */
+            z-index: 998; /* Updated z-index */
+        }
+
+        a {
+            color: #286ceb;
+        }
+
+        a:visited {
+            color: #541cbd; /* Change this to your desired color */
+        }
+
+        code {
+            background-color: #333333; /* Dark code background */
+            color: #dddddd; /* Light code text color */
+            padding: 2px 5px;
+            border-radius: 4px;
+            z-index: 998; /* Updated z-index */
+        }
+
+        .iframe-behind {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Set a lower z-index to position iframe behind content */
+            opacity: 0.7; /* Adjust opacity as needed */
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Leave this as 0 for particles to appear behind content */
+            left: 0;
+            top: 0;
+        }
+
+        .warning-box {
+            background-color: #f1c40f;
+            border: 10px solid #eda11f;
+            padding: 10px;
+            margin: 15px;
+        }
+
+        /* Animation */
+        #hideable-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.25s ease-in-out;
+        }
+
+        #hideable-content.hide {
+            max-height: 0;
+        }
+
+        .window-1 {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            top: -250px;
+            left: -250px;
+            transition: all 0.35s ease-out;
+        }
+
+        .window-top-1 {
+            background-color: #b171f2;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: #ffffff;
+        }
+
+        .window-1 p {
+            padding-left: 10px;
+        }
+
+        .window-1 a {
+            padding-left: 10px;
+        }
+
+        .window-2 {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            top: -250px;
+            left: -250px;
+            transition: all 0.35s ease-out;
+        }
+
+        .window-top-2 {
+            background-color: #b171f2;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            color: #ffffff;
+        }
+
+        .window-2 p {
+            padding-left: 10px;
+        }
+
+        .window-2 a {
+            padding-left: 10px;
+        }
+
+
+            padding-left: 20px;</style>
+        <script>
+            function toggleCommands() {
+                let content = document.getElementById("hideable-content");
+                if (content.classList.contains("hide")) {
+                    content.classList.remove("hide");
+                } else {
+                    content.classList.add("hide");
+                }
+            }
+
+            function toggleContent1() {
+                let content = document.getElementById("hideable-content");
+                if (content.classList.contains("hide")) {
+                    content.classList.remove("hide");
+                } else {
+                    content.classList.add("hide");
+                }
+            }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let visible = false;
+            let randX, randY;
+            document.addEventListener("keydown", function (event) {
+                const windowElement = document.querySelector(".window-1");
+                const maxWidth = window.innerWidth * 1;
+                const maxHeight = window.innerHeight * 2;
+                if (event.key === "Tab") {
+                    event.preventDefault();
+                    if (visible) {
+                        const leftOrRight = Math.random() < 0.5 ? -1 : 1;
+                        randX =
+                            window.innerWidth * leftOrRight +
+                            Math.random() * maxWidth * leftOrRight;
+                        randY = Math.random() * maxHeight;
+                        console.log(randX);
+                        console.log(randY);
+                        windowElement.style.top = `${randY}px`;
+                        windowElement.style.left = `${randX}px`;
+                    } else {
+                        randX = window.innerWidth * 2 + Math.random() * maxWidth;
+                        randY = Math.random() * maxHeight;
+                        windowElement.style.top = `${randY}px`;
+                        windowElement.style.left = `${randX}px`;
+
+                        setTimeout(() => {
+                            windowElement.style.top = "5%";
+                            windowElement.style.left = "2%";
+                            windowElement.style.transform = "translate(-10%, -10%)";
+                        }, 10);
+                    }
+                    visible = !visible;
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            let visible = false;
+            let randX, randY;
+            document.addEventListener("keydown", function (event) {
+                const windowElement = document.querySelector(".window-2");
+                const maxWidth = window.innerWidth * 1;
+                const maxHeight = window.innerHeight * 2;
+                if (event.key === "Tab") {
+                    event.preventDefault();
+                    if (visible) {
+                        const leftOrRight = Math.random() < 0.5 ? -1 : 1;
+                        randX =
+                            window.innerWidth * leftOrRight +
+                            Math.random() * maxWidth * leftOrRight;
+                        randY = Math.random() * maxHeight;
+                        console.log(randX);
+                        console.log(randY);
+                        windowElement.style.top = `${randY}px`;
+                        windowElement.style.left = `${randX}px`;
+                    } else {
+                        randX = window.innerWidth * 2 + Math.random() * maxWidth;
+                        randY = Math.random() * maxHeight;
+                        windowElement.style.top = `${randY}px`;
+                        windowElement.style.left = `${randX}px`;
+
+                        setTimeout(() => {
+                            windowElement.style.top = "5%";
+                            windowElement.style.left = "17%";
+                            windowElement.style.transform = "translate(-10%, -10%)";
+                        }, 10);
+                    }
+                    visible = !visible;
+                }
+            });
+        });</script>
+    </head>
+    <body onload="toggleContent()">
+        <div class="window-1">
+            <div class="window-top-1">MegaHack</div>
+            <p>Available hacks</p>
+            <a href="http://jotalea.com.ar">Visit my Website</a>
+        </div>
+        <div class="window-2">
+            <div class="window-top-2">No-clip</div>
+            <p>This doesn't work here :'(</p>
+        </div>
+        <h1>Jota-Bot official website</h1>
+        <div class="container">
+            <button class="positive"><a href="https://discord.com/api/oauth2/authorize?client_id=1142577469422051478&permissions=10291617721719&scope=bot+applications.commands" style="color: white;">Invite the bot to your server</a></button>
+            <h1>Available commands</h1>
+            <div id="hideable-content">
+                <p><strong>j!ban</strong>: Bans a user from the server. Syntax (numbers are placeholders for the user ID): j!ban user=123456789, reason="No spamming"</p>
+                <p><strong>j!config</strong>: Get the link for the config site (W.I.P.).</p>
+                <p><strong>j!credits</strong>: Shows a list with people that helped making the bot.</p>
+                <p><strong>j!help</strong>: Shows this list of commands.</p>
+                <p><strong>j!invite</strong>: Get the invite for Jota-Bot.</p>
+                <p><strong>j!kick</strong>: Kicks a user from the server. Syntax (numbers are placeholders for the user ID): j!kick user=123456789</p>
+                <p><strong>j!ping</strong>: Get the bot's latency.</p>
+                <p><strong>j!rr</strong>: Play the russian roulette: if you lose, you get banned.</p>
+                <p><strong>j!say</strong>: Makes the bot say anything.</p>
+                <p><strong>j!shutdown</strong>: Turns off the bot (Only for Jotalea).</p>
+                <p><strong>j!ssh</strong>: Open an SSH-like interface on Discord, where you can run real commands (Unstable, work in progress).</p>
+                <p><strong>j!uptime</strong>: Displays how much time has the bot been working.</p>
+                <p><strong>j!version</strong>: Get the current bot version.</p>
+                <p><strong>j!web</strong>: Get a link to Jotalea's website.</p>
+            </div>
+        </div>
+        <div class="container">
+            <h2>Currently on {{ total_servers }} servers!</h2>
+            <!--
+            <h2>Shutdown Form</h2>
+            <form action="/api/shutdown" method="post">
+                <label for="password">Enter password:</label><br>
+                <input type="password" id="password" name="password"><br><br>
+                <input type="submit" value="Submit">
+            </form>
+            -->
+        </div>
+        <div class="container">
+            <h1>What's new?</h1>
+            <h2>Version 4.9 - 4.9.11</h2>
+            <p>Fixed AI messages</p>
+            <h2>Version 4.8</h2>
+            <p>Created this website using a Flask server linked to the bot.</p>
+        </div>
+    </body>
+</html>
