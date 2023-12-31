@@ -1,8 +1,9 @@
 import jotalea, settings
-import discord, time, asyncio, subprocess, random, sqlite3
+import discord, time, asyncio, subprocess, random, sqlite3, os
 from datetime import timedelta
 from discord.ext import commands
 from discord.ext.commands import has_permissions
+from shuttleai import *
 
 # Keep alive
 from keep_alive import server
@@ -25,6 +26,8 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS server_count (
 database.commit()
 
 chat_history = {}
+
+shuttle = ShuttleClient(api_key=os.environ['API_KEY'])
 
 # Store the bot's start time
 bot.start_time = time.time()
@@ -630,37 +633,39 @@ async def on_message(message):
     if settings.logging:
         if settings.use_async:
             try:
-                asyncio.create_task(jotalea.async_webhook(settings.log_webhook, f"<@{message.author.id}> at <#{message.channel.id}> ({server_name}) said: {message.content}"))
+                if str(message.author.id) == str(settings.admin_id):
+                    asyncio.create_task(jotalea.async_webhook(settings.log_webhook, f"Owner at <#{message.channel.id}> ({server_name}) said: {message.content}"))
+                else:
+                    asyncio.create_task(jotalea.async_webhook(settings.log_webhook, f"<@{message.author.id}> at <#{message.channel.id}> ({server_name}) said: {message.content}"))
             except Exception as e:
                 jotalea.prettyprint("red", "[ERROR] Error while logging (async)")
         else:
             try:
-                import os
-                wh = os.environ['WEBHOOK']
-                jotalea.webhook(wh, f"<@{message.author.id}> at <#{message.channel.id}> ({server_name}) said: {message.content}")
+                jotalea.webhook(settings.log_webhook, f"<@{message.author.id}> at <#{message.channel.id}> ({server_name}) said: {message.content}")
             except Exception as e:
                 jotalea.prettyprint("red", "[ERROR] Error while logging")
     else:
         pass
 
-    # If the message is for the bot
+    user_id = str(message.author.id)
+
+    # Get or create the chat history for the user
+    user_history = chat_history.get(user_id, [])
+
+    # Take away the bot name from the message and add to history
+    user_message = message.content.replace("<@1142577469422051478> ", '').strip()
+    jotalea.prettyprint("cyan", user_message)
+    user_history.append({'role': 'user', 'content': user_message})
+
+    # Limit the chat history to a maximum amount of messages
+    max_history_length = 20
+    user_history = user_history[-max_history_length:]
+
+    # Update the chat history for the user
+    chat_history[user_id] = user_history
+    
+    # If the message is for the AI
     if message.content.startswith("<@1142577469422051478>"):
-        user_id = str(message.author.id)
-
-        # Get or create the chat history for the user
-        user_history = chat_history.get(user_id, [])
-
-        # Take away the bot name from the message and add to history
-        user_message = message.content.replace("<@1142577469422051478> ", '').strip()
-        jotalea.prettyprint("cyan", user_message)
-        user_history.append({'role': 'user', 'content': user_message})
-
-        # Limit the chat history to a maximum amount of messages
-        max_history_length = 20
-        user_history = user_history[-max_history_length:]
-
-        # Update the chat history for the user
-        chat_history[user_id] = user_history
 
         async def throwException(er, re):
             error_message = f"> An error occurred while connecting to the API: ```{str(er)}```"
@@ -669,7 +674,24 @@ async def on_message(message):
             jotalea.prettyprint("red", re)
         
         async with message.channel.typing():
-            response = jotalea.gemini(user_message)
+            if settings.AI_type == "gpt":
+                response = shuttle.chat_completion(
+                    model="gpt-4", 
+                    messages=user_history, 
+                    stream=False,
+                    plain=False,
+                    image=None, 
+                    citations=False
+                )['choices'][0]['message']['content']
+
+                if response:
+                    user_history.append({'role': 'assistant', 'content': response})
+                    pass
+                else:
+                    response = "An error occurred"
+            elif settings.AI_type == "gemini":
+                response = jotalea.gemini(user_message)
+
             print(response)
             if len(response) <= 2000:
                 embed = discord.Embed(title="Jotabot AI (beta)", description=response, color=settings.embed_color)
@@ -688,8 +710,28 @@ async def on_message(message):
         original_message = message.reference.cached_message
         if original_message.author == bot.user:
             user_message = message.content.replace("<@1142577469422051478> ", '').strip()
-            response = jotalea.gemini(user_message)
+
+            async with message.channel.typing():
+                if settings.AI_type == "gpt":
+                    response = shuttle.chat_completion(
+                        model="gpt-4", 
+                        messages=user_history, 
+                        stream=False,
+                        plain=False,
+                        image=None, 
+                        citations=False
+                    )['choices'][0]['message']['content']
+
+                    if response:
+                        user_history.append({'role': 'assistant', 'content': response})
+                        pass
+                    else:
+                        response = "An error occurred"
+                elif settings.AI_type == "gemini":
+                    response = jotalea.gemini(user_message)
+            
             print(response)
+            
             if len(response) <= 2000:
                 embed = discord.Embed(title="Jotabot AI (beta)", description=response, color=settings.embed_color)
                 await message.reply(embed=embed, content="")
@@ -714,5 +756,6 @@ except ImportError:
     jotalea.GPT_KEY = input("Paste the API Key: ")
     jotalea.GPT_ENDPOINT = input("Paste the API Endpoint (none for default): ")
 
-server()
+if settings.is_replit:
+    server()
 bot.run(botToken)
